@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Smart CDN Video Player (Streaming)
+  </title>
+  <style>
+   body {
+      font-family: sans-serif;
+      background: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 50px;
+    }
+    video {
+      width: 80%;
+      max-width: 720px;
+      border: 1px solid #ccc;
+      background: black;
+    }
+    .loading {
+      margin-bottom: 1em;
+      font-size: 1.1em;
+      color: #555;
+    }
+  </style>
+ </head>
+ <body>
+  <div class="loading" id="ipinfo">
+   Public IP: [loading...]
+  </div>
+  <div class="loading" id="status">
+   Loading video with streaming support...
+  </div>
+  <video controls="" id="video">
+  </video>
+  <script>
+   async function loadStreamedVideo() {
+      const status = document.getElementById('status');
+      const video = document.getElementById('video');
+
+      try {
+        const ip = await fetch('https://api.ipify.org').then(res => res.text());
+        document.getElementById("ipinfo").textContent = `Public IP: ${ip}`;
+        status.textContent = `Loading video for IP: ${ip}`;
+
+        // Fallback: just use <video src> so browser can stream directly
+        video.src = `http://100.115.234.90/video1-compressed.mp4?ip=${ip}`;
+        video.setAttribute('crossorigin', 'anonymous');
+
+        const response = await fetch('http://100.115.234.90/video1-compressed.mp4', {
+          method: 'HEAD',
+          headers: { 'X-Client-IP': ip }
+        });
+
+        if (response.ok) {
+          status.textContent = "Video stream established :)";
+        } else {
+          throw new Error("Could not confirm availability");
+        }
+      } catch (err) {
+        console.error(err);
+        status.textContent = "Video stream failed :(";
+      }
+    }
+
+    loadStreamedVideo();
+  </script>
+ </body>
+</html>
