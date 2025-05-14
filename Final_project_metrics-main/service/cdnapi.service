@@ -1,0 +1,21 @@
+[Unit]
+Description=CDN Node API Service
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/Final_project_metrics
+ExecStart=/home/ubuntu/.local/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+Restart=always
+# Restart service after 10 seconds if it crashes
+RestartSec=10
+# Environmental variables
+Environment="PATH=/home/ubuntu/.local/bin:/usr/bin:/usr/local/bin"
+# Output to syslog
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cdnapi
+
+[Install]
+WantedBy=multi-user.target
